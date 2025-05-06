@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <title>{{ title if title else "JSON Viewer" }}</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- highlight.js (JSON) -->
+  <link rel="stylesheet"
+   href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github-dark.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/common.min.js"></script>
+  <script>hljs.highlightAll();</script>
+
+  <style>
+    body { padding-bottom: 4rem; }
+    pre.hljs { border-radius: 0.5rem; font-size: 0.9rem; }
+    .breadcrumb-item+.breadcrumb-item::before { content: ">"; }
+  </style>
+</head>
+<body class="bg-light">
+<nav class="navbar bg-dark navbar-dark px-3 mb-4">
+  <span class="navbar-brand mb-0 h1">JSON Viewer</span>
+</nav>
+<div class="container">
+  {% block content %}{% endblock %}
+</div>
+</body>
+</html>

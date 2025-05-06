@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<ol class="breadcrumb">
+  <li class="breadcrumb-item"><a href="/">root</a></li>
+  {% for part in rel_path.parts %}
+    {% set p = rel_path.parts[:loop.index]|join('/') %}
+    <li class="breadcrumb-item">
+      <a href="/{{ p }}">{{ part }}</a>
+    </li>
+  {% endfor %}
+</ol>
+
+<h4 class="mb-3">{{ rel_path if rel_path else "root" }}</h4>
+<ul class="list-group">
+  {% if rel_path %}
+  <li class="list-group-item">
+                <a href="/{{ rel_path.parent|string|replace('\\', '/') }}">⬆️ ..</a>
+  </li>
+  {% endif %}
+  {% for p in entries %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      {% if p.is_dir() %}
+        <a href="/{{ (rel_path/p.name)|replace('\\', '/') }}/">
+          📂 {{ p.name }}/
+        </a>
+      {% else %}
+        <a href="/{{ (rel_path/p.name)|replace('\\', '/') }}">
+          🗎 {{ p.name }}
+        </a>
+        <small class="text-muted">{{ (p.stat().st_size/1024)|round(1) }} KB</small>
+      {% endif %}
+    </li>
+  {% endfor %}
+</ul>
+{% endblock %}

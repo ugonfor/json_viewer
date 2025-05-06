@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block content %}
+  <style>
+    .hash-highlight {
+      color: #d14;
+      font-weight: bold;
+    }
+  </style>
+
+  <!-- Prism.js VSCode Theme -->
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/prism-themes/1.9.0/prism-vsc-dark-plus.min.css"
+    rel="stylesheet"
+  />
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item"><a href="/">root</a></li>
+  {% for part in rel_path.parts %}
+    {% set p = rel_path.parts[:loop.index]|join('/') %}
+    <li class="breadcrumb-item">
+      {% if loop.last %}
+        {{ part }}
+      {% else %}
+        <a href="/{{ p }}">{{ part }}</a>
+      {% endif %}
+    </li>
+  {% endfor %}
+</ol>
+
+<h4 class="mb-3">
+  📄 {{ filename }}
+  <small class="text-muted">{{ full_path }}</small>
+</h4>
+
+<div id="json-container"
+     style="height:80vh; overflow:auto; background:#f0f0f0; padding:1em;">
+  <pre style="white-space:pre-wrap;">
+    <code id="json-pre" class="language-json"></code>
+  </pre>
+</div>
+
+  <!-- Prism core + JSON component -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+
+<script>
+  const cont    = document.getElementById("json-container");
+  const approx  = 8;
+  const width   = Math.floor(cont.clientWidth/approx);
+  const url     = "{{ url_for('json_raw', subpath=rel_path) }}?width="+width;
+  const pre     = document.getElementById("json-pre");
+  let reader, decoder = new TextDecoder();
+
+  fetch(url).then(res=>{
+    reader = res.body.getReader();
+    loadChunk();
+  });
+
+  async function loadChunk(){
+    const { done, value } = await reader.read();
+    if (done) {
+      // 전체 로드 끝나면 한 번만 하이라이트
+      Prism.highlightElement(pre);
+      return;
+    }
+    let text = decoder.decode(value)
+      .replace(/###([\s\S]*?)###/g,
+               '<span class="hash-highlight">###$1###</span>');
+    // `<code>` 안에 HTML로 삽입
+    pre.innerHTML += text;
+    // (원한다면 청크마다도 하이라이트 가능, 다만 성능 주의)
+  }
+
+  cont.addEventListener("scroll", ()=>{
+    if (cont.scrollTop + cont.clientHeight >= cont.scrollHeight - 20)
+      loadChunk();
+  });
+</script>
+{% endblock %}
